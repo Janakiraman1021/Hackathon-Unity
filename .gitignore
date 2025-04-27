@@ -1,0 +1,17 @@
+# Unity generated files
+Library/
+Temp/
+Obj/
+Build/
+Builds/
+Logs/
+UserSettings/
+MemoryCaptures/
+PackageCache/
+
+# Large files or directories
+*.mp3
+*.wav
+*.dll
+*.dylib
+*.so
