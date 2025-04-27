@@ -19,10 +19,10 @@ llm = ChatGroq(
 # Store chat history
 conversation_history = {}
 
-# Personal Prompt (Girlfriend Style)
+# Personal Prompt
 def personal_prompt():
     return """
-  Your name is Aurora. You are the user's fun, caring, slightly possessive, and funny friend.
+  Your name is Taylor. You are the user's fun, caring, slightly possessive, and funny friend.
 Rules:
 
 Be casual, supportive, and expressive like a very close friend.

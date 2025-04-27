@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 using System.Text;
 using UnityEngine.UI;
 using System.Collections.Generic;
@@ -21,9 +22,9 @@ public class ChatGPTManager : MonoBehaviour
     }
 
     public Text responseText;
-    public AudioSource audioSource; // Add this field
+    public AudioSource audioSource; 
 
-    private void WriteIntoFile(Stream stream) // Add this method
+    private void WriteIntoFile(Stream stream) 
     {
         using (var fileStream = new FileStream($"{Application.persistentDataPath}/audio.mp3", FileMode.Create, FileAccess.Write))
         {
@@ -38,11 +39,11 @@ public class ChatGPTManager : MonoBehaviour
 
         string url = $"http://localhost:5000/chat?query={query}&conversation_id={conversationId}";
 
-        UnityWebRequest chatRequest = UnityWebRequest.Get(url); // Renamed to avoid conflict
+        UnityWebRequest chatRequest = UnityWebRequest.Get(url); 
         chatRequest.downloadHandler = new DownloadHandlerBuffer();
         chatRequest.SetRequestHeader("Content-Type", "application/json");
 
-        var chatOperation = chatRequest.SendWebRequest(); // Renamed to avoid conflict
+        var chatOperation = chatRequest.SendWebRequest(); 
 
         while (!chatOperation.isDone)
             await System.Threading.Tasks.Task.Yield();
@@ -60,11 +61,11 @@ public class ChatGPTManager : MonoBehaviour
                 var Credentials = new BasicAWSCredentials("AKIAUPMYMYKVR74DUQ7L", "CFzevfFoQuwawXoxCftVfUYjyCsBEoP5WWz45MoJ");
                 var Client = new AmazonPollyClient(Credentials, RegionEndpoint.EUCentral1);
 
-                var pollyRequest = new SynthesizeSpeechRequest() // Renamed to avoid conflict
+                var pollyRequest = new SynthesizeSpeechRequest() 
                 {
                     Text = responseText.text,
                     Engine = Engine.Standard,
-                    VoiceId = VoiceId.Raveena,
+                    VoiceId = SceneManager.GetActiveScene().name == "ChatG" ? VoiceId.Raveena : VoiceId.Matthew,
                     OutputFormat = OutputFormat.Mp3
                 };
 
@@ -74,7 +75,7 @@ public class ChatGPTManager : MonoBehaviour
 
                 using (var audioRequest = UnityWebRequestMultimedia.GetAudioClip($"file://{Application.persistentDataPath}/audio.mp3", AudioType.MPEG))
                 {
-                    var audioOperation = audioRequest.SendWebRequest(); // Renamed to avoid conflict
+                    var audioOperation = audioRequest.SendWebRequest(); 
 
                     while (!audioOperation.isDone) await Task.Yield();
 
@@ -96,7 +97,7 @@ public class ChatGPTManager : MonoBehaviour
         var Credentials = new BasicAWSCredentials("AKIAUPMYMYKVR74DUQ7L", "CFzevfFoQuwawXoxCftVfUYjyCsBEoP5WWz45MoJ");
         var Client = new AmazonPollyClient(Credentials, RegionEndpoint.EUCentral1);
 
-        var pollyRequest = new SynthesizeSpeechRequest() // Renamed to avoid conflict
+        var pollyRequest = new SynthesizeSpeechRequest() 
         {
             Text = "TESTING OF AWS POLLY FROM UNITY IN NAAN MUDHALVAN CLASS ",
             Engine = Engine.Standard,
@@ -110,7 +111,7 @@ public class ChatGPTManager : MonoBehaviour
 
         using (var audioRequest = UnityWebRequestMultimedia.GetAudioClip($"file://{Application.persistentDataPath}/audio.mp3", AudioType.MPEG))
         {
-            var audioOperation = audioRequest.SendWebRequest(); // Renamed to avoid conflict
+            var audioOperation = audioRequest.SendWebRequest(); 
 
             while (!audioOperation.isDone) await Task.Yield();
 
@@ -123,7 +124,7 @@ public class ChatGPTManager : MonoBehaviour
 
     void Start()
     {
-        // Optional: You can call AskChatGPT("Hi brooo!") here for testing
+        
     }
 
     void Update()
