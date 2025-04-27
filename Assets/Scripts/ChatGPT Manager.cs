@@ -37,13 +37,18 @@ public class ChatGPTManager : MonoBehaviour
         string query = UnityWebRequest.EscapeURL(newText);
         string conversationId = "your_conversation_id";
 
-        string url = $"http://localhost:5000/chat?query={query}&conversation_id={conversationId}";
+        // Retrieve conversation history from localStorage
+        string storedHistory = PlayerPrefs.GetString("conversationHistory", "{}");
+        Dictionary<string, List<string>> conversationHistory = JsonUtility.FromJson<Dictionary<string, List<string>>>(storedHistory);
 
-        UnityWebRequest chatRequest = UnityWebRequest.Get(url); 
+        string currentScene = SceneManager.GetActiveScene().name;
+        string url = $"http://localhost:5000/chat?query={query}&conversation_id={conversationId}&scene={UnityWebRequest.EscapeURL(currentScene)}";
+        Debug.Log("URL: " + url);
+        UnityWebRequest chatRequest = UnityWebRequest.Get(url);
         chatRequest.downloadHandler = new DownloadHandlerBuffer();
         chatRequest.SetRequestHeader("Content-Type", "application/json");
 
-        var chatOperation = chatRequest.SendWebRequest(); 
+        var chatOperation = chatRequest.SendWebRequest();
 
         while (!chatOperation.isDone)
             await System.Threading.Tasks.Task.Yield();
@@ -58,10 +63,23 @@ public class ChatGPTManager : MonoBehaviour
             if (responseText != null)
             {
                 responseText.text = chatResponse.response;
+
+                // Save message and response to localStorage
+                if (!conversationHistory.ContainsKey(conversationId))
+                {
+                    conversationHistory[conversationId] = new List<string>();
+                }
+                conversationHistory[conversationId].Add($"User: {newText}");
+                conversationHistory[conversationId].Add($"AI: {chatResponse.response}");
+
+                string updatedHistory = JsonUtility.ToJson(conversationHistory);
+                PlayerPrefs.SetString("conversationHistory", updatedHistory);
+                PlayerPrefs.Save();
+
                 var Credentials = new BasicAWSCredentials("AKIAUPMYMYKVR74DUQ7L", "CFzevfFoQuwawXoxCftVfUYjyCsBEoP5WWz45MoJ");
                 var Client = new AmazonPollyClient(Credentials, RegionEndpoint.EUCentral1);
 
-                var pollyRequest = new SynthesizeSpeechRequest() 
+                var pollyRequest = new SynthesizeSpeechRequest()
                 {
                     Text = responseText.text,
                     Engine = Engine.Standard,
@@ -75,7 +93,7 @@ public class ChatGPTManager : MonoBehaviour
 
                 using (var audioRequest = UnityWebRequestMultimedia.GetAudioClip($"file://{Application.persistentDataPath}/audio.mp3", AudioType.MPEG))
                 {
-                    var audioOperation = audioRequest.SendWebRequest(); 
+                    var audioOperation = audioRequest.SendWebRequest();
 
                     while (!audioOperation.isDone) await Task.Yield();
 
@@ -97,7 +115,7 @@ public class ChatGPTManager : MonoBehaviour
         var Credentials = new BasicAWSCredentials("AKIAUPMYMYKVR74DUQ7L", "CFzevfFoQuwawXoxCftVfUYjyCsBEoP5WWz45MoJ");
         var Client = new AmazonPollyClient(Credentials, RegionEndpoint.EUCentral1);
 
-        var pollyRequest = new SynthesizeSpeechRequest() 
+        var pollyRequest = new SynthesizeSpeechRequest()
         {
             Text = "TESTING OF AWS POLLY FROM UNITY IN NAAN MUDHALVAN CLASS ",
             Engine = Engine.Standard,
@@ -111,7 +129,7 @@ public class ChatGPTManager : MonoBehaviour
 
         using (var audioRequest = UnityWebRequestMultimedia.GetAudioClip($"file://{Application.persistentDataPath}/audio.mp3", AudioType.MPEG))
         {
-            var audioOperation = audioRequest.SendWebRequest(); 
+            var audioOperation = audioRequest.SendWebRequest();
 
             while (!audioOperation.isDone) await Task.Yield();
 
@@ -124,7 +142,7 @@ public class ChatGPTManager : MonoBehaviour
 
     void Start()
     {
-
+            AskChatGPT("Hey");
     }
 
     void Update()

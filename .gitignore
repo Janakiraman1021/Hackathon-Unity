@@ -8,7 +8,9 @@ Logs/
 UserSettings/
 MemoryCaptures/
 PackageCache/
-
+hackZip/
+Winop/
+*.zip
 # Large files or directories
 *.mp3
 *.wav
