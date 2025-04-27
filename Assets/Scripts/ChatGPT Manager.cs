@@ -124,7 +124,7 @@ public class ChatGPTManager : MonoBehaviour
 
     void Start()
     {
-        
+
     }
 
     void Update()
